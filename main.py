@@ -1,3 +1,4 @@
+
 import cv2 as cv
 import mediapipe as mp
 import time
@@ -9,8 +10,10 @@ import requests
 
 # variables 
 frame_counter =0
-current_frame =0
+last_blink =0
 blink_counter =0
+last_pos= "CENTER"
+last_look_frame =0
 CEF_COUNTER =0
 TOTAL_BLINKS =0
 start_voice= False
@@ -24,10 +27,10 @@ FONTS =cv.FONT_HERSHEY_COMPLEX
 # initialize mixer 
 mixer.init()
 # loading in the voices/sounds 
-voice_left = mixer.Sound('/Voice/left.wav')
-voice_right = mixer.Sound('/Voice/Right.wav')
-voice_center = mixer.Sound('/Voice/center.wav')
-voice_blink = mixer.Sound('/Voice/blink.wav')
+voice_left = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/left.wav')
+voice_right = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/Right.wav')
+voice_center = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/center.wav')
+voice_blink = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/blink.wav')
 # face bounder indices 
 FACE_OVAL=[ 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103,67, 109]
 
@@ -208,14 +211,21 @@ def pixelCounter(first_piece, second_piece, third_piece):
 
 
 #communicate with google home
-def sendMessage(message, type):
+def sendMessage(type, message):
+    print("###########")
+    print(message)
+    print("###########")
     if not message:
         message = "default"
-    match type:
-        case "lights":
-            requests.post("http://127.0.0.1:1880/lights", json={"message": "Lights toggled."})
-        case "talk":
-            requests.post("http://127.0.0.1:1880/message", json={"message": message})
+    try:
+        match type:
+            case "lights":
+                requests.post("http://127.0.0.1:1880/lights", json={"message": "Lights toggled."})
+            case "talk":
+                requests.post("http://127.0.0.1:1880/message", json={"message": message})
+    except Exception as err:
+        1#print("Error: ", err)
+    
 
 
 #Ideally, the program would ask google home what devices exist, and initialize the device list based on that
@@ -238,14 +248,15 @@ class State:
         else:
             message = f"""BlinkedIn Deactivated. To turn BlinkedIn on again, do three long blinks"""
             sendMessage("talk", message)
-            self = State()
+            self = self.__init__
 
     def moveState(self, direction):
         if self.activated:
+            print("state moved. action: ", direction, "current device: ", self.device, "selected?: ",self.deviceSelected)
             match direction:
                 case "right":
                     if not self.deviceSelected:
-                        self.deviceIndex = ((currentState + 1) % len(self.devices))
+                        self.deviceIndex = ((self.deviceIndex + 1) % len(self.devices))
                         message = f"""Device changed to {self.device}. To choose a device, look left or right and blink
                                     To select the device, look straight ahead and blink twice."""
                         sendMessage("talk", message)
@@ -259,7 +270,7 @@ class State:
                         self.moveState("select")
                 case "left":
                     if not self.deviceSelected:
-                        self.deviceIndex = ((currentState - 1) % len(self.devices))
+                        self.deviceIndex = ((self.deviceIndex - 1) % len(self.devices))
                         message = f"""Device changed to {self.device}. To choose a device, look left or right and blink
                                     To select the device, look straight ahead and blink twice."""
                         sendMessage("talk", message)
@@ -277,6 +288,8 @@ class State:
                         self.deviceSelected = not self.deviceSelected
                     else:
                         self.stateToggleOnOff
+        
+
     @property
     def device(self):
         return self.devices[self.deviceIndex]
@@ -289,8 +302,6 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
     start_time = time.time()
     # starting Video loop here.
     while True:
-
-
         frame_counter +=1 # frame counter
         ret, frame = camera.read() # getting frame from camera 
         if not ret: 
@@ -306,28 +317,29 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
             # cv.putText(frame, f'ratio {ratio}', (100, 100), FONTS, 1.0, utils.GREEN, 2)
             utils.colorBackgroundText(frame,  f'Ratio : {round(ratio,2)}', FONTS, 0.7, (30,100),2, utils.PINK, utils.YELLOW)
 
-            if ratio >5.5:
+            if ratio >4.3:
                 CEF_COUNTER +=1
                 # cv.putText(frame, 'Blink', (200, 50), FONTS, 1.3, utils.PINK, 2)
                 utils.colorBackgroundText(frame,  f'Blink', FONTS, 1.7, (int(frame_height/2), 100), 2, utils.YELLOW, pad_x=6, pad_y=6, )
-
+            
             else:
-                if CEF_COUNTER>CLOSED_EYES_FRAME:
+                if CEF_COUNTER>CLOSED_EYES_FRAME and frame_counter - last_blink > 20:
                     TOTAL_BLINKS +=1
                     CEF_COUNTER =0
                     voice_blink.play()
-                    if frame_counter - current_frame < 45:
+                    if frame_counter - last_blink < 45:
                         blink_counter += 1
                         if blink_counter >= 4:
-                            currentState.stateToggleOnOff
+                            currentState.stateToggleOnOff()
+                            blink_counter = 1
                     else:
                         blink_counter = 1
-                    current_frame = frame_counter
-                    if counter_right > 0:
+                    last_blink = frame_counter
+                    if last_pos == "RIGHT":
                         currentState.moveState("right")
-                    elif counter_left > 0:
+                    elif last_pos == "LEFT":
                         currentState.moveState("left")
-                    elif counter_center > 0 and not currentState.deviceSelected:
+                    elif last_pos == "CENTER" and not currentState.deviceSelected:
                         if blink_counter >= 2:
                             currentState.moveState("select")
 
@@ -349,7 +361,9 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
             utils.colorBackgroundText(frame, f'L: {eye_position_left}', FONTS, 1.0, (40, 320), 2, color[0], color[1], 8, 8)
             
             # Starting Voice Indicator 
-            if eye_position_right=="RIGHT" and pygame.mixer.get_busy()==0 and counter_right<2:
+            if eye_position_right=="RIGHT" and counter_right<2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "RIGHT" or 20 < frame_counter - last_look_frame < 200): 
+                last_pos = "RIGHT"
+                last_look_frame = frame_counter
                 # starting counter 
                 counter_right+=1
                 # resetting counters 
@@ -359,7 +373,9 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                 voice_right.play()
 
 
-            if eye_position_right=="CENTER" and pygame.mixer.get_busy()==0 and counter_center <2:
+            if eye_position_right=="CENTER" and counter_center <2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "CENTER" or 20 < frame_counter - last_look_frame < 200): 
+                last_pos = "CENTER"
+                last_look_frame = frame_counter
                 # starting Counter 
                 counter_center +=1
                 # resetting counters 
@@ -368,7 +384,9 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                 # playing voice 
                 voice_center.play()
             
-            if eye_position_right=="LEFT" and pygame.mixer.get_busy()==0 and counter_left<2: 
+            if eye_position_right=="LEFT" and counter_left<2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "LEFT" or 20 < frame_counter - last_look_frame < 200): 
+                last_pos = "LEFT"
+                last_look_frame = frame_counter
                 counter_left +=1
                 # resetting counters 
                 counter_center=0
