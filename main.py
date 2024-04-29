@@ -27,10 +27,10 @@ FONTS =cv.FONT_HERSHEY_COMPLEX
 # initialize mixer 
 mixer.init()
 # loading in the voices/sounds 
-voice_left = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/left.wav')
-voice_right = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/Right.wav')
-voice_center = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/center.wav')
-voice_blink = mixer.Sound('test/Eyes-Position-Estimator-Mediapipe/Eye_Tracking_part4/Voice/blink.wav')
+voice_left = mixer.Sound('Voice/left.wav')
+voice_right = mixer.Sound('Voice/Right.wav')
+voice_center = mixer.Sound('Voice/center.wav')
+voice_blink = mixer.Sound('Voice/blink.wav')
 # face bounder indices 
 FACE_OVAL=[ 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103,67, 109]
 
