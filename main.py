@@ -1,4 +1,4 @@
-
+#Python 3.11
 import cv2 as cv
 import mediapipe as mp
 import time
@@ -9,20 +9,20 @@ from pygame import mixer
 import requests
 
 # variables 
-frame_counter =0
-last_blink =0
-blink_counter =0
-last_pos= "CENTER"
-last_look_frame =0
-CEF_COUNTER =0
-TOTAL_BLINKS =0
-start_voice= False
-counter_right=0
-counter_left =0
-counter_center =0 
+frame_counter = 0
+last_blink = 0
+blink_counter = 0
+last_pos = "CENTER"
+last_look_frame = 0
+CEF_COUNTER = 0
+TOTAL_BLINKS = 0
+start_voice = False
+counter_right = 0
+counter_left = 0
+counter_center = 0 
 # constants
-CLOSED_EYES_FRAME =2
-FONTS =cv.FONT_HERSHEY_COMPLEX
+CLOSED_EYES_FRAME = 2
+FONTS = cv.FONT_HERSHEY_COMPLEX
 
 # initialize mixer 
 mixer.init()
@@ -157,7 +157,7 @@ def eyesExtractor(img, right_eye_coords, left_eye_coords):
     # returning the cropped eyes 
     return cropped_right, cropped_left
 
-# Eyes Postion Estimator 
+# Eyes Position Estimator 
 def positionEstimator(cropped_eye):
     # getting height and width of eye 
     h, w =cropped_eye.shape
@@ -242,11 +242,13 @@ class State:
         if not self.activated:
             self.activated = True
             self.deviceIndex = 1
-            message = f"""Welcome to BlinkedIn, To choose a device, look left and blink. To choose the device, 
-                        look straight ahead and blink twice. Current device is {self.device}"""
+            message = f"""Welcome to BlinkedIn. Current device is {self.device}. 
+                        Look straight ahead and blink twice to activate this device.
+                        To switch devices, look right or left and blink. 
+                        To deactivate BlinkedIn, blink four times."""
             sendMessage("talk", message)
         else:
-            message = f"""BlinkedIn Deactivated. To turn BlinkedIn on again, do three long blinks"""
+            message = f"""BlinkedIn Deactivated. To turn BlinkedIn on again, blink four times."""
             sendMessage("talk", message)
             self = self.__init__
 
@@ -257,27 +259,31 @@ class State:
                 case "right":
                     if not self.deviceSelected:
                         self.deviceIndex = ((self.deviceIndex + 1) % len(self.devices))
-                        message = f"""Device changed to {self.device}. To choose a device, look left or right and blink
-                                    To select the device, look straight ahead and blink twice."""
+                        message = f"""Current device is {self.device}. 
+                                    Look straight ahead and blink twice to activate this device.
+                                    To switch devices, look right or left and blink."""
                         sendMessage("talk", message)
                     else:
                         #activate device
                         if self.device == "Device 1":
                             sendMessage("lights", "")
-                        message = f"""{self.device} toggled, to choose a device, look right or left and blink,
-                                    to select a device, look straight ahead and blink twice, current device is {self.device}"""
+                        message = f"""{self.device} toggled. Current device is {self.device}. 
+                                    Look straight ahead and blink twice to activate this device.
+                                    To switch devices, look right or left and blink."""
                         sendMessage("talk", message)
                         self.moveState("select")
                 case "left":
                     if not self.deviceSelected:
                         self.deviceIndex = ((self.deviceIndex - 1) % len(self.devices))
-                        message = f"""Device changed to {self.device}. To choose a device, look left or right and blink
-                                    To select the device, look straight ahead and blink twice."""
+                        message = f"""Current device is {self.device}. 
+                                    Look straight ahead and blink twice to activate this device.
+                                    To switch devices, look right or left and blink."""
                         sendMessage("talk", message)
                     else:
                         #dont activate device
-                        message = f"""To choose a device, look right or left and blink,to select a device, 
-                                    look straight ahead and blink twice, current device is {self.device}"""
+                        message = f"""Current device is {self.device}. 
+                                    Look straight ahead and blink twice to activate this device.
+                                    To switch devices, look right or left and blink."""
                         sendMessage("talk", message)
                         self.moveState("select")
                 case "select":
