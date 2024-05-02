@@ -367,7 +367,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
             utils.colorBackgroundText(frame, f'L: {eye_position_left}', FONTS, 1.0, (40, 320), 2, color[0], color[1], 8, 8)
             
             # Starting Voice Indicator 
-            if eye_position_right=="RIGHT" and counter_right<2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "RIGHT" or 20 < frame_counter - last_look_frame < 200): 
+            if eye_position_right=="RIGHT" and counter_right<1 and ratio < 4 and frame_counter - last_blink > 20 and frame_counter - last_look_frame > 20 and (last_pos is not "RIGHT" or 20 < frame_counter - last_look_frame < 200): 
                 last_pos = "RIGHT"
                 last_look_frame = frame_counter
                 # starting counter 
@@ -379,7 +379,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                 voice_right.play()
 
 
-            if eye_position_right=="CENTER" and counter_center <2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "CENTER" or 20 < frame_counter - last_look_frame < 200): 
+            if eye_position_right=="CENTER" and counter_center <1 and ratio < 4 and frame_counter - last_blink > 20 and frame_counter - last_look_frame > 20 and (last_pos is not "CENTER" or 20 < frame_counter - last_look_frame < 200): 
                 last_pos = "CENTER"
                 last_look_frame = frame_counter
                 # starting Counter 
@@ -390,7 +390,7 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                 # playing voice 
                 voice_center.play()
             
-            if eye_position_right=="LEFT" and counter_left<2 and ratio < 4 and frame_counter - last_blink > 20 and (last_pos is not "LEFT" or 20 < frame_counter - last_look_frame < 200): 
+            if eye_position_right=="LEFT" and counter_left<1 and ratio < 4 and frame_counter - last_blink > 20 and frame_counter - last_look_frame > 20 and (last_pos is not "LEFT" or 20 < frame_counter - last_look_frame < 200): 
                 last_pos = "LEFT"
                 last_look_frame = frame_counter
                 counter_left +=1
