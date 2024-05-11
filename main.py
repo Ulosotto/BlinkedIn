@@ -226,6 +226,7 @@ def sendMessage(type, message):
 #Ideally, the program would ask google home what devices exist, and initialize the device list based on that
 devices = ["Deactivate", "Device 1", "Device 2", "Device 3"]
 
+#The State class holds all the logic for the menu system by remembering the devices and where exactly the user is in the menu.
 class State:
     def __init__(self):
         self.activated = False
