@@ -88,9 +88,6 @@ def blinkRatio(img, landmarks, right_indices, left_indices):
     # vertical line 
     rv_top = landmarks[right_indices[12]]
     rv_bottom = landmarks[right_indices[4]]
-    # draw lines on right eyes 
-    # cv.line(img, rh_right, rh_left, utils.GREEN, 2)
-    # cv.line(img, rv_top, rv_bottom, utils.WHITE, 2)
 
     # LEFT_EYE 
     # horizontal line 
@@ -133,8 +130,6 @@ def eyesExtractor(img, right_eye_coords, left_eye_coords):
     
     # draw eyes image on mask, where white shape is 
     eyes = cv.bitwise_and(gray, gray, mask=mask)
-    # change black color to gray other than eys 
-    # cv.imshow('eyes draw', eyes)
     eyes[mask==0]=155
     
     # getting minium and maximum x and y  for right and left eyes 
@@ -320,12 +315,10 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
         if results.multi_face_landmarks:
             mesh_coords = landmarksDetection(frame, results, False)
             ratio = blinkRatio(frame, mesh_coords, RIGHT_EYE, LEFT_EYE)
-            # cv.putText(frame, f'ratio {ratio}', (100, 100), FONTS, 1.0, utils.GREEN, 2)
             utils.colorBackgroundText(frame,  f'Ratio : {round(ratio,2)}', FONTS, 0.7, (30,100),2, utils.PINK, utils.YELLOW)
 
             if ratio >4.3:
                 CEF_COUNTER +=1
-                # cv.putText(frame, 'Blink', (200, 50), FONTS, 1.3, utils.PINK, 2)
                 utils.colorBackgroundText(frame,  f'Blink', FONTS, 1.7, (int(frame_height/2), 100), 2, utils.YELLOW, pad_x=6, pad_y=6, )
             
             else:
@@ -349,7 +342,6 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
                         if blink_counter >= 2:
                             currentState.moveState("select")
 
-            # cv.putText(frame, f'Total Blinks: {TOTAL_BLINKS}', (100, 150), FONTS, 0.6, utils.GREEN, 2)
             utils.colorBackgroundText(frame,  f'Total Blinks: {TOTAL_BLINKS}', FONTS, 0.7, (30,150),2)
             
             cv.polylines(frame,  [np.array([mesh_coords[p] for p in LEFT_EYE ], dtype=np.int32)], True, utils.GREEN, 1, cv.LINE_AA)
@@ -359,8 +351,6 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
             right_coords = [mesh_coords[p] for p in RIGHT_EYE]
             left_coords = [mesh_coords[p] for p in LEFT_EYE]
             crop_right, crop_left = eyesExtractor(frame, right_coords, left_coords)
-            # cv.imshow('right', crop_right)
-            # cv.imshow('left', crop_left)
             eye_position_right, color = positionEstimator(crop_right)
             utils.colorBackgroundText(frame, f'R: {eye_position_right}', FONTS, 1.0, (40, 220), 2, color[0], color[1], 8, 8)
             eye_position_left, color = positionEstimator(crop_left)
@@ -406,10 +396,6 @@ with map_face_mesh.FaceMesh(min_detection_confidence =0.5, min_tracking_confiden
         fps = frame_counter/end_time
 
         frame =utils.textWithBackground(frame,f'FPS: {round(fps,1)}',FONTS, 1.0, (30, 50), bgOpacity=0.9, textThickness=2)
-        # writing image for thumbnail drawing shape
-        # cv.imwrite(f'img/frame_{frame_counter}.png', frame)
-        # wirting the video for demo purpose 
-        #out.write(frame)
         cv.imshow('frame', frame)
         key = cv.waitKey(2)
         if key==ord('q') or key ==ord('Q'):
