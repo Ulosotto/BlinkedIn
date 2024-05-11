@@ -1,0 +1,178 @@
+[
+    {
+        "id": "f49b9c9b036bdee6",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "abd26e315a41be93",
+        "type": "cast-to-client",
+        "z": "f49b9c9b036bdee6",
+        "name": "Connect to Google Home Mini",
+        "url": "",
+        "contentType": "",
+        "message": "",
+        "language": "en",
+        "ip": "172.20.10.2",
+        "port": "",
+        "volume": "50",
+        "x": 590,
+        "y": 340,
+        "wires": [
+            [
+                "add8082554cc8906"
+            ]
+        ]
+    },
+    {
+        "id": "fe0c881ffebcdb75",
+        "type": "http in",
+        "z": "f49b9c9b036bdee6",
+        "name": "",
+        "url": "/trigger",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 180,
+        "wires": [
+            [
+                "a9e926338344e6ef"
+            ]
+        ]
+    },
+    {
+        "id": "a9e926338344e6ef",
+        "type": "function",
+        "z": "f49b9c9b036bdee6",
+        "name": "function 1",
+        "func": "// Function node code\nmsg.payload = msg.payload.message; // Assuming the Python script sends {\"message\": \"Light activated.\"}\n\n//if (msg.payload === \"Light activated.\") {\n//   msg.payload = \"Lights on\";\n//} else if (msg.payload === \"Light deactivated.\") {\n//    msg.payload = \"generic exit message\";\n//}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 260,
+        "wires": [
+            [
+                "abd26e315a41be93"
+            ]
+        ]
+    },
+    {
+        "id": "add8082554cc8906",
+        "type": "http response",
+        "z": "f49b9c9b036bdee6",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 830,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "b3d450c9d5e1370e",
+        "type": "http in",
+        "z": "f49b9c9b036bdee6",
+        "name": "",
+        "url": "/message",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "a9e926338344e6ef"
+            ]
+        ]
+    },
+    {
+        "id": "12e9e7b921271995",
+        "type": "http in",
+        "z": "f49b9c9b036bdee6",
+        "name": "",
+        "url": "/lights",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 90,
+        "y": 380,
+        "wires": [
+            [
+                "f79f2fe428ea2f6b"
+            ]
+        ]
+    },
+    {
+        "id": "f79f2fe428ea2f6b",
+        "type": "function",
+        "z": "f49b9c9b036bdee6",
+        "name": "function 2",
+        "func": "// Insert demo functionality here",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d47e0e457427e860",
+        "type": "ui_spacer",
+        "z": "f49b9c9b036bdee6",
+        "name": "spacer",
+        "group": "0641f3f487d3c3e7",
+        "order": 1,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "7ceb8ef01489024e",
+        "type": "ui_spacer",
+        "z": "f49b9c9b036bdee6",
+        "name": "spacer",
+        "group": "0641f3f487d3c3e7",
+        "order": 2,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "0c3685d0cac63f80",
+        "type": "ui_spacer",
+        "z": "f49b9c9b036bdee6",
+        "name": "spacer",
+        "group": "0641f3f487d3c3e7",
+        "order": 4,
+        "width": 6,
+        "height": 1
+    },
+    {
+        "id": "0641f3f487d3c3e7",
+        "type": "ui_group",
+        "name": "Messages",
+        "tab": "710304367c89cb08",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "710304367c89cb08",
+        "type": "ui_tab",
+        "name": "Main tab",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": true,
+        "hidden": false
+    }
+]
